@@ -81,10 +81,20 @@ public class Being : MonoBehaviour
                 path.RemoveAt(0);
             }
         }
+        else
+        {
+            canIGo = false;
+        }
     }
 
     void GoToPoint( Vector3 point, float speedTime)
     {
         transform.position = Vector3.Lerp(transform.position, point, speedTime);
     }
+
+    public void Move()
+    {
+        canIGo = true;
+    }
 }
+
