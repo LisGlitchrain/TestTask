@@ -4,26 +4,34 @@ using UnityEngine;
 
 public class Being : MonoBehaviour
 {
-    [SerializeField] BeingType type = BeingType.Car;
+    [SerializeField] BeingType type;
+    public BeingType Type { get {return type; } set { type = value; } }
     List<Vertex> path = new List<Vertex>();
     Graph graph;
+    Vertex pOI;
+
+    [SerializeField] float speed;
+    [SerializeField] float accuracy;
+    [SerializeField] float pathCost;
+    [SerializeField] float roadCost;
+    [SerializeField] float pathDirectionCost;
+    [SerializeField] float directionCost;
+    [SerializeField] bool canIGo;
     // Start is called before the first frame update
     void Start()
     {
         graph = FindObjectOfType<Graph>();
+        pOI = graph.GetFirstPOI(BeingType.Car);
+        transform.position = pOI.transform.position;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (path.Count == 0)
-        {
-            Vertex firstPOI = graph.GetFirstPOI(BeingType.Car);
-            transform.position = firstPOI.transform.position;
-            path = graph.GetPathToNextPointOfInterest(firstPOI, type);          
-        }
         DrawPath();
+        if (canIGo)
+        RidePath(path,Time.deltaTime);
     }
 
     void DrawPath()
@@ -33,5 +41,50 @@ public class Being : MonoBehaviour
         {
             Debug.DrawLine(pathArray[i].transform.position, pathArray[i-1].transform.position, Color.magenta);
         }
+    }
+
+    public float GetPointCost(VertexType type)
+    {
+        switch(type)
+        {
+            case VertexType.Path:
+                return pathCost;
+            case VertexType.Direction:
+                return directionCost;
+            case VertexType.Road:
+                return roadCost;
+            case VertexType.PathDirection:
+                return pathDirectionCost;
+            default:
+                return -1f;
+        }
+    }
+
+    public void NextPOI()
+    {
+        pOI = graph.GetNextPOI(pOI);
+        transform.position = pOI.gameObject.transform.position;
+    }
+
+    public void PathToPoint()
+    {
+        path = graph.GetPathToNextPointOfInterest(pOI, this);
+    }
+
+    void RidePath(List<Vertex> path, float deltaTime)
+    {
+        if (path.Count>0)
+        {
+            GoToPoint(path.ToArray()[0].gameObject.transform.position, speed * deltaTime);
+            if ((path.ToArray()[0].gameObject.transform.position - transform.position).magnitude < accuracy)
+            {
+                path.RemoveAt(0);
+            }
+        }
+    }
+
+    void GoToPoint( Vector3 point, float speedTime)
+    {
+        transform.position = Vector3.Lerp(transform.position, point, speedTime);
     }
 }

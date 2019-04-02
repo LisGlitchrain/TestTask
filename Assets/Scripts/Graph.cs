@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
-    Vertex[] vertices;
-    public Vertex[] Vertices { get { return vertices; } set { vertices = value; } }
+
+    public Vertex[] Vertices { get; set; }
     List<Vertex> pOI = new List<Vertex>();
-    [SerializeField] int maxPathDepth;
+    [SerializeField] int maxPathDepth = 3;
     public bool IsInitialized { get; set; }
     [SerializeField] bool drawGraph;
+    [SerializeField] int maxPathToAnalyzeCount = 5;
+    [SerializeField] int failsCount = 1;
     // Start is called before the first frame update
     void Start()
     {
         IsInitialized = false;
-        vertices = FindObjectsOfType<Vertex>();
+        Vertices = FindObjectsOfType<Vertex>();
         foreach(var vertex in Vertices)
         {
             if (vertex.PointOfInterest)
@@ -88,20 +90,26 @@ public class Graph : MonoBehaviour
         return color;
     }
 
-    public List<Vertex> GetPathToNextPointOfInterest(Vertex currentPOI, BeingType beingType)
+    public List<Vertex> GetPathToNextPointOfInterest(Vertex currentPOI, Being being)
     {
         Vertex nextPOI = GetNextPOI(currentPOI);
         List<Vertex> path = new List<Vertex>();
         for (int currentMaxdepth = 1; currentMaxdepth < maxPathDepth; currentMaxdepth++)
         {
-            if (DeepSearch(currentPOI, nextPOI, beingType, 1, currentMaxdepth, ref path))
-            {
-                path.Add(currentPOI);
-                break;
-            }
+            path.Add(currentPOI);
+            WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path);
+
+
+            //if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
+            //{
+            //    path.Add(currentPOI);
+            //    break;
+            //}
         }
         print("+++++++++++++");
-        foreach(var vertex in path)
+        print("+++++++++++++");
+        print("+++++++++++++");
+        foreach (var vertex in path)
         {
             print($"Vertex {vertex.name}");
         }
@@ -114,7 +122,167 @@ public class Graph : MonoBehaviour
         return GetNextPOI();
     }
 
-    bool DeepSearch(Vertex currentVertex, Vertex targetVertex, BeingType beingType, int currentDepth, int maxDepth, ref List<Vertex> path)
+    public void WeightedDeepSearch(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Vertex> path)
+    {
+        Path[] pathes = new Path[maxPathToAnalyzeCount];
+        for(var i=0;i< maxPathToAnalyzeCount;i++)
+        {
+            pathes[i] = new Path();
+        }
+        Path tempPath = new Path();
+
+        for (var i=0;i< pathes.Length;i++)
+        {
+            if (WeightedDeepSearchInnerCycle(currentVertex, targetVertex, being, 1, maxDepth, pathes, tempPath))
+            {
+                pathes[i] = tempPath.Clone() as Path;
+                tempPath = new Path();
+            }
+        }
+
+        float cost = 0f;
+        var goodCount = 0;
+        foreach(var pathIn in pathes)
+        {
+            if (pathIn != null)
+            {
+                if (pathIn.PathCost > 0)
+                {
+                    goodCount++;
+
+                }
+            }
+        }
+        //print("GOODCOUNT " + goodCount);
+        Path goodPath = new Path();
+        for(var i=0; i< goodCount;i++)
+        {
+            print($"PATH ANALYZE {i}");
+            print($"Path cost {pathes[i].PathCost}");
+            foreach (var vertex in pathes[i].Vertices)
+            {
+                print($"Vertexx {vertex.name} COST  ");
+            }
+
+            if (pathes[i].PathCost>cost)
+            {
+                goodPath = pathes[i];
+                cost = goodPath.PathCost;
+            }
+        }
+        //foreach (var vertex in goodPath.Vertices)
+        //{
+        //    print($"Vertexx {vertex.name}");
+        //}
+        //print($"Length {goodPath.Vertices.Count}");
+        foreach (var vertex in goodPath.Vertices)
+        {
+            path.Add(vertex);
+        }
+        //path = goodPath.GetPath();
+        //path.Add(currentVertex);
+        //print($"Chosen cost {goodPath.PathCost}");
+        
+
+    }
+
+    bool WeightedDeepSearchInnerCycle(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, Path[] pathes, Path tempPath)
+    {
+        var failCount = 0;
+        while (failCount < failsCount)
+        {
+
+            foreach (var vertex in currentVertex.LinkedVertices)
+            {
+                    //print($"Vertex {vertex.gameObject.name}");
+                    bool isNotPrevious = true;
+                    foreach (var vert in tempPath.Vertices)
+                    {
+                        if (vert.Equals(vertex))
+                        {
+                            isNotPrevious = false;
+                            break;
+                        }
+                    }
+                    if (vertex == targetVertex && isNotPrevious)
+                    {
+                        tempPath.Vertices.Add(vertex);
+                        //tempPath.PathCost++;
+                        tempPath.PathCost = being.GetPointCost(
+                                                                GetPointType(vertex,
+                                                                            tempPath.Vertices.ToArray()[tempPath.Vertices.IndexOf(vertex)]));
+
+                        foreach (var path in pathes)
+                        {
+                            if (tempPath.Equals(path))
+                            {
+                                tempPath.Vertices.Remove(vertex);
+                                return false;
+                            }
+                        }
+                        //print($"Vertex {vertex.gameObject.name} is added");
+                        //foreach (var vert in tempPath.Vertices)
+                        //{
+                        //    print(vert.name);
+                        //}
+                        return true;
+                    }
+                    else if (currentDepth < maxDepth && IsVertexTypeGood(vertex, being.Type) && isNotPrevious)
+                    {
+                        tempPath.Vertices.Add(vertex);
+                        //print($"Vertex {vertex.gameObject.name} is added");
+
+                        if (WeightedDeepSearchInnerCycle(vertex, targetVertex, being, currentDepth + 1, maxDepth, pathes, tempPath))
+                        {
+                            if (tempPath.Vertices.IndexOf(vertex) > 0)
+                            {
+                                tempPath.PathCost += being.GetPointCost(
+                                                                GetPointType(vertex,
+                                                                            tempPath.Vertices.ToArray()[tempPath.Vertices.IndexOf(vertex) - 1]));
+                            }
+
+                            //foreach(var vert in tempPath.Vertices)
+                            //{
+                            //    print(vert.name);
+                            //}
+                            return true;
+                        }
+                        else
+                        {
+                            //if (tempPath.Vertices.Count>1)
+                            //{
+                                tempPath.Vertices.Remove(vertex);
+                            //}
+
+                        }
+                    }              
+               
+            }  
+            failCount++;
+        }
+        return false;      
+    }
+
+    VertexType GetPointType(Vertex currentVertex,Vertex targetVertex)
+    {
+
+        if (currentVertex.Type == targetVertex.Type && currentVertex.Type != VertexType.PathDirection)
+        {
+            return currentVertex.Type;
+        }
+        else if (currentVertex.Type == VertexType.PathDirection)
+        {
+            return targetVertex.Type;
+        }
+        else if (targetVertex.Type == VertexType.PathDirection)
+        {
+            return currentVertex.Type;
+        }
+        else
+            return VertexType.ErrorType;
+    }
+
+    bool DeepSearch(Vertex currentVertex, Vertex targetVertex, BeingType beingType, int currentDepth, int maxDepth, List<Vertex> path)
     {
         foreach (var vertex in currentVertex.LinkedVertices)
         {
@@ -125,7 +293,7 @@ public class Graph : MonoBehaviour
             }
             else if (currentDepth < maxDepth && IsVertexTypeGood(vertex, beingType))
             {
-                if (DeepSearch(vertex, targetVertex, beingType, currentDepth + 1, maxDepth, ref path))
+                if (DeepSearch(vertex, targetVertex, beingType, currentDepth + 1, maxDepth, path))
                 {
                     path.Add(vertex);
                     return true;
@@ -148,16 +316,16 @@ public class Graph : MonoBehaviour
             case BeingType.Human:
                 if (vertex.Type == VertexType.Path)
                     isGood = true;
-                if (vertex.Type == VertexType.Direction)
+                else if (vertex.Type == VertexType.Direction)
                     isGood = true;
-                if (vertex.Type == VertexType.PathDirection)
+                else if (vertex.Type == VertexType.PathDirection)
                     isGood = true;
                 break;
         }
         return isGood;
     }
 
-    Vertex GetNextPOI(Vertex currentPOI)
+    public Vertex GetNextPOI(Vertex currentPOI)
     {
         System.Random r = new System.Random();
         var index = r.Next(0,pOI.Count);

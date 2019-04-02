@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\Being.cs" />
     <Compile Include="Assets\Scripts\BeingType.cs" />
     <Compile Include="Assets\Scripts\Graph.cs" />
+    <Compile Include="Assets\Scripts\Path.cs" />
     <Compile Include="Assets\Scripts\Vertex.cs" />
     <Compile Include="Assets\Scripts\VertexType.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum VertexType
 {
+    ErrorType,
     Road,
     Path,
     Direction,

@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Vertex : MonoBehaviour
+public class Vertex : MonoBehaviour, IEquatable<Vertex>
 {
     [SerializeField] List<Vertex> linkedVetrices = new List<Vertex>();
     public List<Vertex> LinkedVertices { get { return linkedVetrices; } set { linkedVetrices = value; } }
@@ -20,5 +21,11 @@ public class Vertex : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public bool Equals(Vertex other)
+    {
+        return gameObject.transform.position.Equals(other.transform.position);
+
     }
 }
