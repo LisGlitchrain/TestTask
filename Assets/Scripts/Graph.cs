@@ -113,18 +113,23 @@ public class Graph : MonoBehaviour
     {
         Vertex nextPOI = GetNextPOI(currentPOI);
         List<Vertex> path = new List<Vertex>();
+        Path[] pathes = new Path[maxPathToAnalyzeCount];
+        for(var i=0; i< pathes.Length;i++)
+        {
+            pathes[i] = new Path();
+        }
         for (int currentMaxdepth = 1; currentMaxdepth < maxPathDepth; currentMaxdepth++)
         {
             path.Clear();
-            path.Add(currentPOI);
-            WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path);
+            //path.Add(currentPOI);
+
+            //WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path, pathes);
 
 
-            //if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
-            //{
-            //    path.Add(currentPOI);
-            //    break;
-            //}
+            if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
+            {
+                break;
+            }
         }
         print("+++++++++++++");
         print("+++++++++++++");
@@ -142,13 +147,8 @@ public class Graph : MonoBehaviour
         return GetNextPOI();
     }
 
-    public void WeightedDeepSearch(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Vertex> path)
+    void WeightedDeepSearch(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Vertex> path, Path[] pathes)
     {
-        Path[] pathes = new Path[maxPathToAnalyzeCount];
-        for(var i=0;i< maxPathToAnalyzeCount;i++)
-        {
-            pathes[i] = new Path();
-        }
         Path tempPath = new Path();
 
         for (var i=0;i< pathes.Length;i++)
@@ -324,6 +324,7 @@ public class Graph : MonoBehaviour
     {
         foreach (var vertex in currentVertex.LinkedVertices)
         {
+
             if (vertex == targetVertex)
             {
                 path.Add(vertex);
@@ -331,12 +332,12 @@ public class Graph : MonoBehaviour
             }
             else if (currentDepth < maxDepth && IsVertexTypeGood(vertex, beingType))
             {
+                
                 if (DeepSearch(vertex, targetVertex, beingType, currentDepth + 1, maxDepth, path))
                 {
                     path.Add(vertex);
                     return true;
                 }
-
             }
         }
         return false;

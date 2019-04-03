@@ -82,10 +82,10 @@ public class Being : MonoBehaviour
         }
         if (path.Count>0)
         {
-            GoToPoint(path.ToArray()[0].gameObject.transform.position, speed * deltaTime);
-            if ((path.ToArray()[0].gameObject.transform.position - transform.position).magnitude < accuracy)
+            GoToPoint(path.ToArray()[path.Count-1].gameObject.transform.position, speed * deltaTime);
+            if ((path.ToArray()[path.Count - 1].gameObject.transform.position - transform.position).magnitude < accuracy)
             {
-                path.RemoveAt(0);
+                path.RemoveAt(path.Count - 1);
             }
         }
         else
