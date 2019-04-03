@@ -111,29 +111,30 @@ public class Graph : MonoBehaviour
 
     public List<Vertex> GetPathToNextPointOfInterest(Vertex currentPOI, Being being)
     {
+
+        print("+++++++++++++");
+        print("+++++++++++++");
+        print("+++++++++++++");
         Vertex nextPOI = GetNextPOI(currentPOI);
+        print($" Next POI{nextPOI.gameObject.name }");
         List<Vertex> path = new List<Vertex>();
-        Path[] pathes = new Path[maxPathToAnalyzeCount];
-        for(var i=0; i< pathes.Length;i++)
+        List<Path> pathes = new List<Path>();
+        for(var i=0; i< pathes.Count;i++)
         {
             pathes[i] = new Path();
         }
         for (int currentMaxdepth = 1; currentMaxdepth < maxPathDepth; currentMaxdepth++)
         {
             path.Clear();
-            //path.Add(currentPOI);
-
-            //WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path, pathes);
-
-
-            if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
-            {
+            path.Add(currentPOI);
+            print($"Depth {currentMaxdepth}");
+            if (WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path, pathes, maxPathToAnalyzeCount))
                 break;
-            }
+            //if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
+            //{
+            //    break;
+            //}
         }
-        print("+++++++++++++");
-        print("+++++++++++++");
-        print("+++++++++++++");
         foreach (var vertex in path)
         {
             print($"Vertex {vertex.name}");
@@ -147,80 +148,54 @@ public class Graph : MonoBehaviour
         return GetNextPOI();
     }
 
-    void WeightedDeepSearch(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Vertex> path, Path[] pathes)
+    bool WeightedDeepSearch(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Vertex> path, List<Path> pathes, int maxPathCount)
     {
         Path tempPath = new Path();
 
-        for (var i=0;i< pathes.Length;i++)
+        for (var i=pathes.Count;i< maxPathCount;i++)
         {
             if (WeightedDeepSearchInnerCycle(currentVertex, targetVertex, being, 1, maxDepth, pathes, tempPath))
             {
-                pathes[i] = tempPath.Clone() as Path;
+                pathes.Add(tempPath.Clone() as Path);
                 tempPath = new Path();
             }
         }
 
         float cost = 0f;
-        var goodCount = 0;
-        foreach(var pathIn in pathes)
-        {
-            if (pathIn != null)
-            {
-                if (pathIn.PathCost > 0)
-                {
-                    goodCount++;
-
-                }
-            }
-        }
-        //print("GOODCOUNT " + goodCount);
         Path goodPath = new Path();
-        for(var i=0; i< goodCount;i++)
+        foreach(var inPath in pathes)
         {
-            print($"PATH ANALYZE {i}");
-            print($"Path cost {pathes[i].PathCost}");
-            foreach (var vertex in pathes[i].Vertices)
+            if (inPath.PathCost < cost || cost ==0f)
             {
-                print($"Vertexx {vertex.name} COST  ");
-            }
-
-            if(pathes[i].Vertices.Count == goodPath.Vertices.Count)
-            {
-                if (pathes[i].PathCost > cost)
-                {
-                    goodPath = pathes[i].Clone() as Path;
-                    cost = goodPath.PathCost;
-                }
-            }
-            else if (pathes[i].Vertices.Count < goodPath.Vertices.Count)
-            {
-                goodPath = pathes[i].Clone() as Path;
+                goodPath = inPath.Clone() as Path;
                 cost = goodPath.PathCost;
             }
-            else if (goodPath.Vertices.Count == 0)
-            {
-                goodPath = pathes[i].Clone() as Path;
-                cost = goodPath.PathCost;
-            }
-
         }
-        //foreach (var vertex in goodPath.Vertices)
-        //{
-        //    print($"Vertexx {vertex.name}");
-        //}
-        //print($"Length {goodPath.Vertices.Count}");
         foreach (var vertex in goodPath.Vertices)
         {
             path.Add(vertex);
         }
-        //path = goodPath.GetPath();
-        //path.Add(currentVertex);
-        //print($"Chosen cost {goodPath.PathCost}");
-        
+        Vertex tempVertex;
+        for(var i=0; i< path.Count/2;i++)
+        {
+            tempVertex = path[i];
+            path[i] = path[path.Count - i - 1];
+            path[path.Count - i - 1] = tempVertex;
+        }
 
+        if (pathes.Count == maxPathCount)
+        {
+            foreach (var inPath in pathes)
+            {
+                print($"PATH ANALYZE {pathes.IndexOf(inPath)}");
+                print($"Path cost {pathes[pathes.IndexOf(inPath)].PathCost}");
+            }
+            return true;
+        }
+        else return false;
     }
 
-    bool WeightedDeepSearchInnerCycle(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, Path[] pathes, Path tempPath)
+    bool WeightedDeepSearchInnerCycle(Vertex currentVertex, Vertex targetVertex, Being being, int currentDepth, int maxDepth, List<Path> pathes, Path tempPath)
     {
         var failCount = 0;
         while (failCount < failsCount)

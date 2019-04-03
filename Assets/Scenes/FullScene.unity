@@ -1422,6 +1422,7 @@ MonoBehaviour:
   linkedVetrices:
   - {fileID: 1055324701}
   - {fileID: 940664929}
+  - {fileID: 347400327}
   type: 3
   pointOfInterest: 0
 --- !u!23 &310585081
@@ -1517,6 +1518,7 @@ MonoBehaviour:
   linkedVetrices:
   - {fileID: 1675833234}
   - {fileID: 1215257427}
+  - {fileID: 310585080}
   type: 3
   pointOfInterest: 0
 --- !u!23 &347400328
@@ -5283,7 +5285,7 @@ MonoBehaviour:
   pathCost: 1
   roadCost: 0
   pathDirectionCost: 1
-  directionCost: 0.5
+  directionCost: 5
   pathDirectionRoadCost: 1
   canIGo: 0
 --- !u!65 &1710574628
