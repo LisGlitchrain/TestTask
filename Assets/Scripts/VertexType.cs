@@ -8,5 +8,6 @@ public enum VertexType
     Road,
     Path,
     Direction,
-    PathDirection
+    PathDirection,
+    PathDirectionRoad
 }

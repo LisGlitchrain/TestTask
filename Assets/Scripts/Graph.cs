@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
+[ExecuteInEditMode]
 public class Graph : MonoBehaviour
 {
 
@@ -12,32 +14,52 @@ public class Graph : MonoBehaviour
     [SerializeField] bool drawGraph;
     [SerializeField] int maxPathToAnalyzeCount = 5;
     [SerializeField] int failsCount = 1;
+    int childrenCount = 0;
+    [SerializeField] float pOIRadius = 1;
     // Start is called before the first frame update
     void Start()
     {
         IsInitialized = false;
-        Vertices = FindObjectsOfType<Vertex>();
-        foreach(var vertex in Vertices)
+        IsInitialized = Initialize();
+    }
+
+    // Update is called once per frame
+    public void Update()
+    {
+        if (transform.childCount != childrenCount)
+        {
+            Initialize();
+            childrenCount = transform.childCount;
+        }
+        if (drawGraph)
+        {
+            //Debug.Log("Graph is updated");
+            DrawGraph();
+        }
+
+    }
+
+
+    public bool Initialize()
+    {
+        Vertices = GetComponentsInChildren<Vertex>();
+        pOI.Clear();
+        foreach (var vertex in Vertices)
         {
             if (vertex.PointOfInterest)
             {
                 pOI.Add(vertex);
             }
         }
-        IsInitialized = true;
+        return true;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (drawGraph) DrawGraph();
-    }
-
 
     void DrawGraph()
     {
-        foreach(var vertex in Vertices)
+        //print("DROWN");
+        foreach (var vertex in Vertices)
         {
+
             foreach(var inVertex in vertex.LinkedVertices)
             {
                 DrawEdge(vertex, inVertex);
@@ -45,34 +67,31 @@ public class Graph : MonoBehaviour
         }
     }
 
-    void DrawEdge(Vertex a, Vertex b)
+    private void OnDrawGizmos()
     {
-        Color color = Color.white;
-        if (a.Type == b.Type)
+        Handles.color = Color.black;
+        foreach (var vertex in Vertices)
         {
-            color = SetColor(a);
-            Debug.DrawLine(a.transform.position, b.transform.position, color);
-        }
-        else if (a.Type == VertexType.PathDirection)
-        {
-            color = SetColor(b);
-            Debug.DrawLine(a.transform.position, b.transform.position, color);
-        }
-        else if (b.Type == VertexType.PathDirection)
-        {
-            color = SetColor(a);
-            Debug.DrawLine(a.transform.position, b.transform.position, color);
-        }
-        else
-        {
-            print("ERROR VERTEXTYPE");
+            if (vertex.PointOfInterest)
+            {
+                UnityEditor.Handles.DrawWireDisc(vertex.transform.position, Vector3.up, pOIRadius);
+            }
         }
     }
 
-    Color SetColor(Vertex a)
+
+
+    void DrawEdge(Vertex a, Vertex b)
+    {
+        Color color = Color.white;
+        color = SetColor(GetPointType(a, b));
+        Debug.DrawLine(a.transform.position, b.transform.position, color);
+    }
+
+    Color SetColor(VertexType a)
     {
         Color color;
-        switch (a.Type)
+        switch (a)
         {
             case VertexType.Path:
                 color = Color.yellow;
@@ -96,6 +115,7 @@ public class Graph : MonoBehaviour
         List<Vertex> path = new List<Vertex>();
         for (int currentMaxdepth = 1; currentMaxdepth < maxPathDepth; currentMaxdepth++)
         {
+            path.Clear();
             path.Add(currentPOI);
             WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path);
 
@@ -164,11 +184,25 @@ public class Graph : MonoBehaviour
                 print($"Vertexx {vertex.name} COST  ");
             }
 
-            if (pathes[i].PathCost>cost)
+            if(pathes[i].Vertices.Count == goodPath.Vertices.Count)
             {
-                goodPath = pathes[i];
+                if (pathes[i].PathCost > cost)
+                {
+                    goodPath = pathes[i].Clone() as Path;
+                    cost = goodPath.PathCost;
+                }
+            }
+            else if (pathes[i].Vertices.Count < goodPath.Vertices.Count)
+            {
+                goodPath = pathes[i].Clone() as Path;
                 cost = goodPath.PathCost;
             }
+            else if (goodPath.Vertices.Count == 0)
+            {
+                goodPath = pathes[i].Clone() as Path;
+                cost = goodPath.PathCost;
+            }
+
         }
         //foreach (var vertex in goodPath.Vertices)
         //{
@@ -263,22 +297,26 @@ public class Graph : MonoBehaviour
         return false;      
     }
 
-    VertexType GetPointType(Vertex currentVertex,Vertex targetVertex)
+    public VertexType GetPointType(Vertex currentVertex,Vertex targetVertex)
     {
 
-        if (currentVertex.Type == targetVertex.Type && currentVertex.Type != VertexType.PathDirection)
+        if (currentVertex.Type == targetVertex.Type && currentVertex.Type != VertexType.PathDirection && currentVertex.Type != VertexType.PathDirectionRoad)
         {
             return currentVertex.Type;
         }
-        else if (currentVertex.Type == VertexType.PathDirection)
+        else if (currentVertex.Type == VertexType.PathDirection || currentVertex.Type == VertexType.PathDirectionRoad)
         {
             return targetVertex.Type;
         }
-        else if (targetVertex.Type == VertexType.PathDirection)
+        else if (targetVertex.Type == VertexType.PathDirection || targetVertex.Type == VertexType.PathDirectionRoad)
         {
             return currentVertex.Type;
         }
-        else
+        else if (currentVertex.Type == targetVertex.Type && currentVertex.Type == VertexType.PathDirection)
+        {
+            return VertexType.Path;
+        }
+        else 
             return VertexType.ErrorType;
     }
 
@@ -312,6 +350,8 @@ public class Graph : MonoBehaviour
             case BeingType.Car:
                 if (vertex.Type == VertexType.Road)
                     isGood = true;
+                if (vertex.Type == VertexType.PathDirectionRoad)
+                    isGood = true;
                 break;
             case BeingType.Human:
                 if (vertex.Type == VertexType.Path)
@@ -319,6 +359,8 @@ public class Graph : MonoBehaviour
                 else if (vertex.Type == VertexType.Direction)
                     isGood = true;
                 else if (vertex.Type == VertexType.PathDirection)
+                    isGood = true;
+                else if (vertex.Type == VertexType.PathDirectionRoad)
                     isGood = true;
                 break;
         }

@@ -16,6 +16,7 @@ public class Being : MonoBehaviour
     [SerializeField] float roadCost;
     [SerializeField] float pathDirectionCost;
     [SerializeField] float directionCost;
+    [SerializeField] float pathDirectionRoadCost;
     [SerializeField] bool canIGo;
     // Start is called before the first frame update
     void Start()
@@ -55,6 +56,8 @@ public class Being : MonoBehaviour
                 return roadCost;
             case VertexType.PathDirection:
                 return pathDirectionCost;
+            case VertexType.PathDirectionRoad:
+                return pathDirectionRoadCost;
             default:
                 return -1f;
         }
@@ -73,6 +76,10 @@ public class Being : MonoBehaviour
 
     void RidePath(List<Vertex> path, float deltaTime)
     {
+        if (path.Count == 1)
+        {
+            pOI = path.ToArray()[0];
+        }
         if (path.Count>0)
         {
             GoToPoint(path.ToArray()[0].gameObject.transform.position, speed * deltaTime);
@@ -89,7 +96,7 @@ public class Being : MonoBehaviour
 
     void GoToPoint( Vector3 point, float speedTime)
     {
-        transform.position = Vector3.Lerp(transform.position, point, speedTime);
+        transform.position += (point -transform.position).normalized* speedTime;
     }
 
     public void Move()

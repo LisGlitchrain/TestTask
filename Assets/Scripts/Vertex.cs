@@ -26,6 +26,7 @@ public class Vertex : MonoBehaviour, IEquatable<Vertex>
     public bool Equals(Vertex other)
     {
         return gameObject.transform.position.Equals(other.transform.position);
-
     }
+
+
 }
