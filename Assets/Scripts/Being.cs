@@ -65,7 +65,7 @@ public class Being : MonoBehaviour
 
     public void NextPOI()
     {
-        pOI = graph.GetNextPOI(pOI);
+        pOI = graph.GetNextPOI(pOI, type);
         transform.position = pOI.gameObject.transform.position;
     }
 

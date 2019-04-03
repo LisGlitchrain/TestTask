@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb1a0cef74d71945a7ba820ad54d3be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPathDepth: 20
+  maxPathDepth: 50
   drawGraph: 1
   maxPathToAnalyzeCount: 5
   failsCount: 1
@@ -5282,10 +5282,10 @@ MonoBehaviour:
   type: 0
   speed: 5
   accuracy: 0.1
-  pathCost: 1
-  roadCost: 0
+  pathCost: 5
+  roadCost: 1
   pathDirectionCost: 1
-  directionCost: 5
+  directionCost: 1
   pathDirectionRoadCost: 1
   canIGo: 0
 --- !u!65 &1710574628

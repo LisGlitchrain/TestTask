@@ -69,12 +69,15 @@ public class Graph : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Handles.color = Color.black;
-        foreach (var vertex in Vertices)
+        if (IsInitialized)
         {
-            if (vertex.PointOfInterest)
+            Handles.color = Color.black;
+            foreach (var vertex in Vertices)
             {
-                UnityEditor.Handles.DrawWireDisc(vertex.transform.position, Vector3.up, pOIRadius);
+                if (vertex.PointOfInterest)
+                {
+                    UnityEditor.Handles.DrawWireDisc(vertex.transform.position, Vector3.up, pOIRadius);
+                }
             }
         }
     }
@@ -115,8 +118,8 @@ public class Graph : MonoBehaviour
         print("+++++++++++++");
         print("+++++++++++++");
         print("+++++++++++++");
-        Vertex nextPOI = GetNextPOI(currentPOI);
-        print($" Next POI{nextPOI.gameObject.name }");
+        Vertex nextPOI = GetNextPOI(currentPOI, being.Type);
+        print($" Next POI {nextPOI.gameObject.name }");
         List<Vertex> path = new List<Vertex>();
         List<Path> pathes = new List<Path>();
         for(var i=0; i< pathes.Count;i++)
@@ -128,8 +131,15 @@ public class Graph : MonoBehaviour
             path.Clear();
             path.Add(currentPOI);
             print($"Depth {currentMaxdepth}");
-            if (WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path, pathes, maxPathToAnalyzeCount))
+            if (!WeightedDeepSearch(currentPOI, nextPOI, being, 1, currentMaxdepth, path, pathes, maxPathToAnalyzeCount))
+            {
+                print("Failed to find Route.");
+                path.Remove(currentPOI);
+            }
+            if (pathes.Count == maxPathToAnalyzeCount)
+            {
                 break;
+            }
             //if (DeepSearch(currentPOI, nextPOI, being.Type, 1, currentMaxdepth, path))
             //{
             //    break;
@@ -143,7 +153,7 @@ public class Graph : MonoBehaviour
         return path;
     }
 
-    public Vertex GetFirstPOI( BeingType beingType)
+    public Vertex GetFirstPOI(BeingType beingType)
     {
         return GetNextPOI();
     }
@@ -213,7 +223,7 @@ public class Graph : MonoBehaviour
                             break;
                         }
                     }
-                    if (vertex == targetVertex && isNotPrevious)
+                    if (vertex.Equals(targetVertex) && isNotPrevious)
                     {
                         tempPath.Vertices.Add(vertex);
                         //tempPath.PathCost++;
@@ -326,7 +336,7 @@ public class Graph : MonoBehaviour
             case BeingType.Car:
                 if (vertex.Type == VertexType.Road)
                     isGood = true;
-                if (vertex.Type == VertexType.PathDirectionRoad)
+                else if (vertex.Type == VertexType.PathDirectionRoad)
                     isGood = true;
                 break;
             case BeingType.Human:
@@ -343,14 +353,21 @@ public class Graph : MonoBehaviour
         return isGood;
     }
 
-    public Vertex GetNextPOI(Vertex currentPOI)
+    public Vertex GetNextPOI(Vertex currentPOI, BeingType beingType)
     {
         System.Random r = new System.Random();
         var index = r.Next(0,pOI.Count);
-        while (currentPOI == pOI.ToArray()[index])
+        while (currentPOI.transform.Equals(pOI.ToArray()[index].transform) || !IsVertexTypeGood(pOI.ToArray()[index], beingType))
         {
             index = r.Next(0, pOI.Count);
         }
+        print($"!!!");
+        print($"!!!");
+        print($"!!!");
+        print($"!!!");
+        print($"!!!");
+        print($"!!!");
+        print($"POI {pOI.ToArray()[index].gameObject.name}");
         return pOI.ToArray()[index];
     }
 
