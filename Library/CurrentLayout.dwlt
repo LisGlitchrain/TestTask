@@ -73,7 +73,7 @@ MonoBehaviour:
   m_MinSize: {x: 406, y: 224}
   m_MaxSize: {x: 8006, y: 4024}
   vertical: 0
-  controlID: 94
+  controlID: 106
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -93,14 +93,14 @@ MonoBehaviour:
     y: 618
     width: 1403
     height: 309
-  m_MinSize: {x: 232, y: 274}
-  m_MaxSize: {x: 10002, y: 10024}
-  m_ActualView: {fileID: 13}
+  m_MinSize: {x: 102, y: 124}
+  m_MaxSize: {x: 4002, y: 4024}
+  m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 13}
   - {fileID: 18}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -122,10 +122,10 @@ MonoBehaviour:
     y: 0
     width: 1403
     height: 927
-  m_MinSize: {x: 406, y: 498}
-  m_MaxSize: {x: 10002, y: 14048}
+  m_MinSize: {x: 406, y: 348}
+  m_MaxSize: {x: 8006, y: 8048}
   vertical: 1
-  controlID: 93
+  controlID: 105
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -147,10 +147,10 @@ MonoBehaviour:
     y: 30
     width: 1680
     height: 927
-  m_MinSize: {x: 683, y: 498}
-  m_MaxSize: {x: 14004, y: 14048}
+  m_MinSize: {x: 683, y: 348}
+  m_MaxSize: {x: 12008, y: 8048}
   vertical: 0
-  controlID: 92
+  controlID: 104
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -336,19 +336,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Scripts/Helpers
   m_ViewMode: 1
   m_StartGridSize: 46
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Scripts/Helpers
   m_LastFoldersGridSize: 46
   m_LastProjectPath: D:\OneDrive\Projects\Unity\Local\m2o2Aydarov
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 2e280000
-    m_LastClickedID: 10286
+    m_SelectedIDs: 1a2e0000
+    m_LastClickedID: 11802
     m_ExpandedIDs: 00000000c42700002e28000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -402,8 +402,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
+    m_SelectedInstanceIDs: 202e0000
+    m_LastClickedInstanceID: 11808
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000000000008a2e0000
     m_RenameOverlay:
@@ -496,7 +496,7 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 08270000
+      m_SelectedIDs: 202e0000
       m_LastClickedID: 0
       m_ExpandedIDs: d4fbffff
       m_RenameOverlay:
@@ -554,9 +554,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -1.4239292, y: -31.172237, z: 0.67595786}
+    m_Target: {x: -1.1754718, y: -32.472744, z: -0.08886295}
     speed: 2
-    m_Value: {x: -1.4239292, y: -31.172237, z: 0.67595786}
+    m_Value: {x: -1.1754718, y: -32.472744, z: -0.08886295}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -584,9 +584,9 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.49064612, y: -0.5092492, z: 0.4927125, w: 0.5071153}
+    m_Target: {x: 0.48842365, y: -0.51152605, z: 0.49491563, w: 0.50481886}
     speed: 2
-    m_Value: {x: 0.49064612, y: -0.5092492, z: 0.4927125, w: 0.5071153}
+    m_Value: {x: 0.48842365, y: -0.51152605, z: 0.49491563, w: 0.50481886}
   m_Size:
     m_Target: 50.49575
     speed: 2

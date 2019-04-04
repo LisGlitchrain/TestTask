@@ -131,8 +131,10 @@ public class Being : MonoBehaviour
 
     public void ChangeTargetPOI(Vertex nextTargetPOI)
     {
+        if (targetPOI) Destroy(targetPOI.gameObject.GetComponent<LineRenderer>());
         targetPOI = nextTargetPOI;
-        path = graph.GetPathToNextPointOfInterest(pOI, targetPOI, this);
+        path = graph.GetPathToNextPointOfInterest(pOI, targetPOI, this);    
+        GameObjectExt.DrawCircle(targetPOI.gameObject, 1, 0.1f);
     }
 
     public void ChangeCurrentPOI(Vertex nextCurrentPOI)

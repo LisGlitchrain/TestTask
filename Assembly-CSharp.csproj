@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\BeingType.cs" />
     <Compile Include="Assets\Scripts\Graph.cs" />
     <Compile Include="Assets\Scripts\GraphVisualizer.cs" />
+    <Compile Include="Assets\Scripts\Helpers\GameObjectExt.cs" />
     <Compile Include="Assets\Scripts\Path.cs" />
     <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\Vertex.cs" />
