@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Being : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class Being : MonoBehaviour
     List<Vertex> path = new List<Vertex>();
     Graph graph;
     Vertex pOI;
+    Vertex targetPOI;
+    public Vertex POI { get { return pOI; } }
 
     [SerializeField] float speed;
     [SerializeField] float accuracy;
@@ -22,14 +25,15 @@ public class Being : MonoBehaviour
     void Start()
     {
         graph = FindObjectOfType<Graph>();
-        pOI = graph.GetFirstPOI(BeingType.Car);
+        pOI = graph.GetFirstPOI(type);
         transform.position = pOI.transform.position;
-
+        targetPOI = pOI;
     }
 
     // Update is called once per frame
     void Update()
     {
+        GraphVisualizer.DrawPath(path);
         DrawPath();
         if (canIGo)
         RidePath(path,Time.deltaTime);
@@ -72,6 +76,7 @@ public class Being : MonoBehaviour
     public void PathToPoint()
     {
         path = graph.GetPathToNextPointOfInterest(pOI, this);
+        targetPOI = path[0];
     }
 
     void RidePath(List<Vertex> path, float deltaTime)
@@ -102,6 +107,40 @@ public class Being : MonoBehaviour
     public void Move()
     {
         canIGo = true;
+    }
+
+    public void ChangeType(string typeName )
+    {
+        BeingType newType = BeingType.Car;
+        foreach(var type in Enum.GetValues(typeof(BeingType)))
+        {
+            if (Enum.GetName(typeof(BeingType) ,type) == typeName)
+            {
+                newType = (BeingType) type;
+                break;
+            }
+        }
+        type = newType;
+        path.Clear();
+        if (!graph.IsVertexTypeGood(pOI, type))
+        {
+            pOI = graph.GetFirstPOI(type);
+            transform.position = pOI.transform.position;
+        }
+    }
+
+    public void ChangeTargetPOI(Vertex nextTargetPOI)
+    {
+        targetPOI = nextTargetPOI;
+        path = graph.GetPathToNextPointOfInterest(pOI, targetPOI, this);
+    }
+
+    public void ChangeCurrentPOI(Vertex nextCurrentPOI)
+    {
+        pOI = nextCurrentPOI;
+        path.Clear();
+        transform.position = pOI.transform.position;
+        path = graph.GetPathToNextPointOfInterest(pOI, targetPOI, this);
     }
 }
 
