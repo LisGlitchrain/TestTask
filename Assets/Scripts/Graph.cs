@@ -245,6 +245,7 @@ public class Graph : MonoBehaviour
                             return false;
                         }
                     }
+                    return true;
                 }
                 else if (currentDepth < maxDepth && IsVertexTypeGood(vertex, being.Type) && isNotPrevious)
                 {
